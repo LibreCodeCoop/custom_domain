@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<files psalm-version="5.22.1@e9dad66e11274315dac27e08349c628c7d6a1a43">
+  <file src="lib/Middleware/InjectionMiddleware.php">
+    <InvalidTemplateParam>
+      <code><![CDATA[$response->addHeader('Content-Disposition', 'attachment; filename="' . $type . '"')]]></code>
+      <code><![CDATA[$response->addHeader('Content-Type', $mime)]]></code>
+      <code><![CDATA[$response->cacheFor(3600)]]></code>
+      <code><![CDATA[$response->setContentSecurityPolicy($csp)]]></code>
+    </InvalidTemplateParam>
+    <UndefinedClass>
+      <code><![CDATA[ThemingController]]></code>
+    </UndefinedClass>
+  </file>
+</files>

@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<info xmlns:xsi= "http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
+	<id>custom_domain</id>
+	<name>Custom Domain</name>
+	<summary>Use custom domains</summary>
+	<description><![CDATA[**Use custom domains]]>
+	</description>
+	<version>0.0.1-dev</version>
+	<licence>agpl</licence>
+	<author mail="contact@librecode.coop" homepage="https://librecode.coop">LibreCode</author>
+	<namespace>CustomDomain</namespace>
+	<documentation>
+		<admin>https://github.com/librecodecoop/custom_domain/blob/master/README.md</admin>
+	</documentation>
+	<category>organization</category>
+	<category>tools</category>
+	<website>https://github.com/librecodecoop/custom_domain</website>
+	<discussion>https://t.me/librecodecoop</discussion>
+	<bugs>https://github.com/librecodecoop/custom_domain/issues</bugs>
+	<repository type="git">https://github.com/librecodecoop/custom_domain</repository>
+	<dependencies>
+		<nextcloud min-version="28" max-version="29"/>
+	</dependencies>
+
+	<repair-steps>
+		<post-migration>
+			<step>OCA\CustomDomain\Migration\InstallDefaultTheme</step>
+		</post-migration>
+		<install>
+			<step>OCA\CustomDomain\Migration\InstallDefaultTheme</step>
+		</install>
+	</repair-steps>
+	<commands>
+		<command>OCA\CustomDomain\Command\Company\Add</command>
+		<command>OCA\CustomDomain\Command\Company\Disable</command>
+		<command>OCA\CustomDomain\Command\Company\ListCommand</command>
+		<command>OCA\CustomDomain\Command\Developer\L10n</command>
+	</commands>
+</info>

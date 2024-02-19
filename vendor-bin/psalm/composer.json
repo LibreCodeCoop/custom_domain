@@ -1,0 +1,8 @@
+{
+	"config": {
+		"sort-packages": true
+	},
+	"require-dev": {
+		"vimeo/psalm": "^5.13"
+	}
+}
