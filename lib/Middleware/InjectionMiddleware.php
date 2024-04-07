@@ -7,6 +7,7 @@ namespace OCA\CustomDomain\Middleware;
 use OC\NavigationManager;
 use OCA\CustomDomain\Backend\SystemGroupBackend;
 use OCA\CustomDomain\Service\CompanyService;
+use OCA\Theming\Controller\IconController;
 use OCA\Theming\Controller\ThemingController;
 use OCP\App\IAppManager;
 use OCP\AppFramework\Controller;
@@ -40,24 +41,31 @@ class InjectionMiddleware extends Middleware {
 	public function afterController(Controller $controller, string $methodName, Response $response): Response {
 		if ($controller instanceof ThemingController) {
 			if ($methodName === 'getImage') {
-				return $this->getImageFromDomain($response);
+				$type = $this->request->getParam('key', '');
+				return $this->getImageFromDomain($response, $type);
+			}
+		} elseif ($controller instanceof IconController) {
+			if ($methodName === 'getFavicon') {
+				return $this->getImageFromDomain($response, 'favicon');
 			}
 		}
 		return $response;
 	}
 
-	private function getImageFromDomain(Response $response): Response {
+	private function getImageFromDomain(Response $response, string $type): Response {
 		if (!$response instanceof NotFoundResponse && !$response instanceof FileDisplayResponse) {
 			return $response;
 		}
 
-		$type = $this->request->getParam('key');
-		if (!in_array($type, ['logo', 'background'])) {
+		if (!in_array($type, ['logo', 'favicon', 'background'])) {
 			return $response;
 		}
 
 		if ($type === 'logo') {
 			$file = $this->companyService->getThemeFile('core/img/logo.png');
+			$mime = 'image/png';
+		} elseif ($type === 'favicon') {
+			$file = $this->companyService->getThemeFile('core/img/favicon.png');
 			$mime = 'image/png';
 		} elseif ($type === 'background') {
 			$file = $this->companyService->getThemeFile('core/img/background.png');
