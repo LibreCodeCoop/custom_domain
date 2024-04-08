@@ -9,6 +9,9 @@
 	<licence>agpl</licence>
 	<author mail="contact@librecode.coop" homepage="https://librecode.coop">LibreCode</author>
 	<namespace>CustomDomain</namespace>
+	<types>
+		<prelogin/>
+	</types>
 	<documentation>
 		<admin>https://github.com/librecodecoop/custom_domain/blob/master/README.md</admin>
 	</documentation>
