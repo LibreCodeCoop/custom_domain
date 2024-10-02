@@ -60,7 +60,7 @@ class CompanyService {
 		}
 		$code = trim($code);
 		if (!empty($domain)) {
-			list($codeFromDomain) = explode('.', $domain);
+			[$codeFromDomain] = explode('.', $domain);
 			if ($codeFromDomain !== $code && $code !== $domain) {
 				throw new InvalidArgumentException('The domain or subdomain need to be equal to the code.');
 			}
@@ -132,7 +132,7 @@ class CompanyService {
 
 	public function getCompanyCode(): string {
 		$host = $this->request->getServerHost();
-		list($subdomain) = explode('.', $host);
+		[$subdomain] = explode('.', $host);
 		$group = $this->groupManager->get($subdomain);
 		if ($group instanceof IGroup) {
 			return $subdomain;
