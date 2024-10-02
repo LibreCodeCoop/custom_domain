@@ -88,7 +88,7 @@ class InjectionMiddleware extends Middleware {
 				$property = $class->getProperty('file');
 				$property->setAccessible(true);
 				$property->setValue($response, $file);
-			} catch(\ReflectionException $e) {
+			} catch (\ReflectionException $e) {
 			}
 		}
 

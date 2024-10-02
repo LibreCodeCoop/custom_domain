@@ -12,7 +12,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class L10n extends Base {
 	private string $appDir;
 	public function __construct(
-		private IConfig $config
+		private IConfig $config,
 	) {
 		$this->config = $config;
 		$this->appDir = realpath(__DIR__ . '/../../../');
@@ -59,7 +59,7 @@ class L10n extends Base {
 		if (!file_exists($file)) {
 			$translationToolUrl = 'https://raw.githubusercontent.com/nextcloud/docker-ci/master/translations/translationtool/src/translationtool.php';
 			$code = file_get_contents($translationToolUrl);
-			list($class, ) = explode("\n// read the command line arguments", $code);
+			[$class, ] = explode("\n// read the command line arguments", $code);
 			file_put_contents($file, $class);
 		}
 		if (!file_exists($toolsDir . '/composer.json')) {
