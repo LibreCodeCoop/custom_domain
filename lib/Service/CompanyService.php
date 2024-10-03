@@ -142,13 +142,15 @@ class CompanyService {
 
 	public function getThemeFile($name): ISimpleFile {
 		$folder = $this->getThemeFolder($this->getCompanyCode());
-		try {
-			$file = $folder->getFile($name);
-		} catch (NotFoundException $e) {
-			$folder = $this->getThemeFolder('default');
-			$file = $folder->getFile($name);
+		foreach (['png', 'jpg', 'svg'] as $extension) {
+			try {
+				return $folder->getFile($name . '.' . $extension);
+			} catch (NotFoundException $e) {
+				continue;
+			}
 		}
-		return $file;
+		$folder = $this->getThemeFolder('default');
+		return $folder->getFile($name);
 	}
 
 	private function getThemeFolder(string $folderName): ISimpleFolder {

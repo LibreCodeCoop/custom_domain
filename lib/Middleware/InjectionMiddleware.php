@@ -16,6 +16,8 @@ use OCP\AppFramework\Http\FileDisplayResponse;
 use OCP\AppFramework\Http\NotFoundResponse;
 use OCP\AppFramework\Http\Response;
 use OCP\AppFramework\Middleware;
+use OCP\Files\NotFoundException;
+use OCP\Files\SimpleFS\ISimpleFile;
 use OCP\IConfig;
 use OCP\IGroupManager;
 use OCP\IRequest;
@@ -61,25 +63,14 @@ class InjectionMiddleware extends Middleware {
 			return $response;
 		}
 
-		if ($type === 'logo') {
-			$file = $this->companyService->getThemeFile('core/img/logo.png');
-			$mime = 'image/png';
-		} elseif ($type === 'favicon') {
-			$file = $this->companyService->getThemeFile('core/img/favicon.png');
-			$mime = 'image/png';
-		} elseif ($type === 'background') {
-			$file = $this->companyService->getThemeFile('core/img/background.png');
-			$mime = 'image/png';
-		} else {
-			return new NotFoundResponse();
-		}
+		$file = $this->companyService->getThemeFile('core/img/' . $type);
 
 		if ($response instanceof NotFoundResponse) {
 			$response = new FileDisplayResponse($file);
 			$csp = new ContentSecurityPolicy();
 			$csp->allowInlineStyle();
 			$response->cacheFor(3600);
-			$response->addHeader('Content-Type', $mime);
+			$response->addHeader('Content-Type', $file->getMimeType());
 			$response->addHeader('Content-Disposition', 'attachment; filename="' . $type . '"');
 			$response->setContentSecurityPolicy($csp);
 		} else {
