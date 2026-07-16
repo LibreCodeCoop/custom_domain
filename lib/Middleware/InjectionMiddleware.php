@@ -60,10 +60,12 @@ class InjectionMiddleware extends Middleware {
 
 		if ($response instanceof NotFoundResponse) {
 			$response = new FileDisplayResponse($file);
+			/** @var FileDisplayResponse<int, array<string, mixed>> $response */
 			$csp = new ContentSecurityPolicy();
 			$csp->allowInlineStyle();
+			$mimeType = $file->getMimeType();
 			$response->cacheFor(3600);
-			$response->addHeader('Content-Type', $file->getMimeType());
+			$response->addHeader('Content-Type', $mimeType);
 			$response->addHeader('Content-Disposition', 'attachment; filename="' . $type . '"');
 			$response->setContentSecurityPolicy($csp);
 		} else {
