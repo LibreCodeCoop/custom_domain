@@ -109,6 +109,22 @@ Behavior:
 - `list` shows companies inferred from `trusted_domains`.
 - `disable` removes the matching trusted domains for that company code.
 
+## Ansible Tests
+
+This repository includes a playbook to run the main functional checks against a local Nextcloud instance:
+
+```bash
+ansible-playbook -i localhost, -c local ansible/test_custom_domain.yml
+```
+
+The playbook:
+
+- verifies the Nextcloud instance is reachable
+- ensures `custom_domain` is enabled
+- creates a test company
+- lists companies in JSON format and asserts the new entry exists
+- removes the test company during cleanup
+
 ## Runtime requirements
 
 - `groupfolders`
