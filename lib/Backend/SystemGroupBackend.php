@@ -24,24 +24,15 @@ class SystemGroupBackend extends ABackend implements
 	private array $systemGroups = [
 		'waiting-approval',
 	];
-	private ?IDBConnection $dbConn = null;
+	private IDBConnection $dbConn;
+	private IUserManager $userManager;
 
 	/**
 	 * \OC\Group\Database constructor.
-	 *
-	 * @param IDBConnection|null $dbConn
 	 */
-	public function __construct(?IDBConnection $dbConn = null) {
+	public function __construct(IDBConnection $dbConn, IUserManager $userManager) {
 		$this->dbConn = $dbConn;
-	}
-
-	/**
-	 * FIXME: This function should not be required!
-	 */
-	private function fixDI(): void {
-		if ($this->dbConn === null) {
-			$this->dbConn = \OC::$server->getDatabaseConnection();
-		}
+		$this->userManager = $userManager;
 	}
 
 	public function inGroup($uid, $gid): bool {
@@ -51,7 +42,6 @@ class SystemGroupBackend extends ABackend implements
 		if (!$this->canExposeThatIsInGroup()) {
 			return false;
 		}
-		$this->fixDI();
 
 		// check
 		$qb = $this->dbConn->getQueryBuilder();
@@ -94,8 +84,6 @@ class SystemGroupBackend extends ABackend implements
 	 * Adds a user to a group.
 	 */
 	public function addToGroup(string $uid, string $gid): bool {
-		$this->fixDI();
-
 		// No duplicate entries!
 		if (!$this->inGroup($uid, $gid)) {
 			$qb = $this->dbConn->getQueryBuilder();
@@ -118,8 +106,6 @@ class SystemGroupBackend extends ABackend implements
 	 * removes the user from a group.
 	 */
 	public function removeFromGroup(string $uid, string $gid): bool {
-		$this->fixDI();
-
 		$qb = $this->dbConn->getQueryBuilder();
 		$qb->delete('group_user')
 			->where($qb->expr()->eq('uid', $qb->createNamedParameter($uid)))
@@ -136,8 +122,6 @@ class SystemGroupBackend extends ABackend implements
 	 * @return int
 	 */
 	public function countUsersInGroup(string $gid, string $search = ''): int {
-		$this->fixDI();
-
 		$query = $this->dbConn->getQueryBuilder();
 		$query->select($query->func()->count('*', 'num_users'))
 			->from('group_user')
@@ -149,7 +133,7 @@ class SystemGroupBackend extends ABackend implements
 			)));
 		}
 
-		$result = $query->execute();
+		$result = $query->executeQuery();
 		$count = $result->fetchOne();
 		$result->closeCursor();
 
@@ -171,8 +155,6 @@ class SystemGroupBackend extends ABackend implements
 		if ($uid === null || $uid === '') {
 			return [];
 		}
-
-		$this->fixDI();
 
 		// No magic!
 		$qb = $this->dbConn->getQueryBuilder();
@@ -210,8 +192,6 @@ class SystemGroupBackend extends ABackend implements
 	}
 
 	private function searchInGroup(string $gid, string $search = '', int $limit = -1, int $offset = 0): array {
-		$this->fixDI();
-
 		$query = $this->dbConn->getQueryBuilder();
 		$query->select('g.uid', 'u.displayname');
 
@@ -248,9 +228,8 @@ class SystemGroupBackend extends ABackend implements
 		$result = $query->executeQuery();
 
 		$users = [];
-		$userManager = \OCP\Server::get(IUserManager::class);
 		while ($row = $result->fetch()) {
-			$users[$row['uid']] = new LazyUser($row['uid'], $userManager, $row['displayname'] ?? null);
+			$users[$row['uid']] = new LazyUser($row['uid'], $this->userManager, $row['displayname'] ?? null);
 		}
 		$result->closeCursor();
 

@@ -1,0 +1,136 @@
+---
+- name: Test custom_domain against the local Nextcloud instance
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+    nextcloud_compose_root: "{{ lookup('env', 'NEXTCLOUD_COMPOSE_ROOT') | default(playbook_dir ~ '/../../../../', true) }}"
+    nextcloud_service: nextcloud
+    occ_user: www-data
+    test_companies:
+      - code: ansiblecheck
+        name: Ansible Check
+        domain: ansiblecheck.localhost
+      - code: widgets
+        name: Widgets
+        domain: widgets.localhost
+      - code: acme
+        name: ACME Corp
+        domain: acme.localhost
+
+  tasks:
+    - block:
+        - name: Confirm Nextcloud is reachable
+          ansible.builtin.command:
+            argv:
+              - docker
+              - compose
+              - exec
+              - -u
+              - "{{ occ_user }}"
+              - "{{ nextcloud_service }}"
+              - php
+              - occ
+              - status
+          args:
+            chdir: "{{ nextcloud_compose_root }}"
+          register: nextcloud_status
+          changed_when: false
+
+        - name: Ensure custom_domain is enabled
+          ansible.builtin.command:
+            argv:
+              - docker
+              - compose
+              - exec
+              - -u
+              - "{{ occ_user }}"
+              - "{{ nextcloud_service }}"
+              - php
+              - occ
+              - app:enable
+              - custom_domain
+          args:
+            chdir: "{{ nextcloud_compose_root }}"
+          register: enable_result
+          changed_when: "'already enabled' not in enable_result.stdout"
+
+        - name: Add test companies
+          ansible.builtin.command:
+            argv:
+              - docker
+              - compose
+              - exec
+              - -u
+              - "{{ occ_user }}"
+              - "{{ nextcloud_service }}"
+              - php
+              - occ
+              - custom-domain:company:add
+              - "{{ item.code }}"
+              - --name
+              - "{{ item.name }}"
+              - --domain
+              - "{{ item.domain }}"
+              - --force
+          args:
+            chdir: "{{ nextcloud_compose_root }}"
+          loop: "{{ test_companies }}"
+          loop_control:
+            label: "{{ item.code }}"
+          register: add_results
+          changed_when: "'Company created' in add_results.stdout"
+
+        - name: List companies as JSON
+          ansible.builtin.command:
+            argv:
+              - docker
+              - compose
+              - exec
+              - -u
+              - "{{ occ_user }}"
+              - "{{ nextcloud_service }}"
+              - php
+              - occ
+              - custom-domain:company:list
+              - --output
+              - json
+          args:
+            chdir: "{{ nextcloud_compose_root }}"
+          register: list_result
+          changed_when: false
+
+        - name: Verify the test company exists
+          ansible.builtin.assert:
+            that:
+              - (list_result.stdout | from_json | selectattr('id', 'equalto', item.code) | list | length) == 1
+              - (list_result.stdout | from_json | selectattr('name', 'equalto', item.name) | list | length) == 1
+              - (list_result.stdout | from_json | selectattr('domain', 'equalto', item.domain) | list | length) == 1
+            fail_msg: "One or more test companies were not found in custom-domain:company:list output."
+          loop: "{{ test_companies }}"
+          loop_control:
+            label: "{{ item.code }}"
+
+      always:
+        - name: Remove the test companies from trusted domains
+          ansible.builtin.command:
+            argv:
+              - docker
+              - compose
+              - exec
+              - -u
+              - "{{ occ_user }}"
+              - "{{ nextcloud_service }}"
+              - php
+              - occ
+              - custom-domain:company:disable
+              - "{{ item.code }}"
+          args:
+            chdir: "{{ nextcloud_compose_root }}"
+          loop: "{{ test_companies }}"
+          loop_control:
+            label: "{{ item.code }}"
+          register: disable_results
+          changed_when: "'Company disabled' in disable_results.stdout"
+          failed_when: false

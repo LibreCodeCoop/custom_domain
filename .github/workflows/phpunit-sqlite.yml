@@ -22,7 +22,6 @@ on:
   push:
     branches:
       - main
-      - master
       - stable*
 
 permissions:
@@ -38,8 +37,8 @@ jobs:
 
     strategy:
       matrix:
-        php-versions: ['8.0']
-        server-versions: ['master']
+        php-versions: ['8.2']
+        server-versions: ['stable33']
 
     steps:
       - name: Set app env

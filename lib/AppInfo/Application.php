@@ -88,10 +88,9 @@ class Application extends App implements IBootstrap {
 	private function overrideDefaultColor() {
 		$service = $this->getConfig();
 		$defaults = \OC::$server->get(OC_Defaults::class);
-		$reflection = new \ReflectionClass($defaults);
-		$property = $reflection->getProperty('color');
-		$property->setAccessible(true);
-		$color = $property->getValue($defaults);
+		$color = method_exists($defaults, 'getColorPrimary')
+			? $defaults->getColorPrimary()
+			: null;
 		$service->setInMemory('color', $color);
 	}
 
@@ -110,8 +109,12 @@ class Application extends App implements IBootstrap {
 				\OC::$server->registerService(\OC\AppConfig::class, function () {
 					return new CustomDomainAppConfig(
 						\OC::$server->get(\OCP\IDBConnection::class),
+						\OC::$server->get(\OCP\IConfig::class),
+						\OC::$server->get(\OC\Config\ConfigManager::class),
+						\OC::$server->get(\OC\Config\PresetManager::class),
 						\OC::$server->get(\Psr\Log\LoggerInterface::class),
 						\OC::$server->get(\OCP\Security\ICrypto::class),
+						\OC::$server->get(\OC\Memcache\Factory::class),
 					);
 				});
 				$service = \OC::$server->get(\OC\AppConfig::class);

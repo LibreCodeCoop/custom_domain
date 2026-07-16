@@ -2,20 +2,29 @@
 
 # Custom Domain
 
-Use custom domains at Nextcloud instance
+Use custom domains on a Nextcloud instance by mapping a company code or subdomain to:
+
+- a Nextcloud group
+- a trusted domain entry
+- a company-specific theme asset set
 
 ## Setup
 
 * Install this app
-* Configuration
-* go to root folder of your nextcloud instance and run the follow commands:
+* Enable the required apps from the Nextcloud root folder:
+
 ```bash
 # Group folders
 occ app:enable --force groupfolders
 
+# Theming
+occ app:enable --force theming
+```
+
 ## Customizations
 
-Not mandatory, but maybe is important
+Optional, but commonly used with this app:
+
 ```bash
 # Hide development notice
 occ config:system:set has_valid_subscription --value true --type boolean
@@ -37,7 +46,7 @@ occ config:app:set core shareapi_allow_share_dialog_user_enumeration --value yes
 occ config:app:set password_policy minLength --value 8
 ## Disable Nextcloud knowledge database (help)
 occ config:system:set knowledgebaseenabled --value false --type boolean
-## use custom domain insteadof localhost when use occ commands
+## Use custom domain instead of localhost when using occ commands
 occ config:system:set overwrite.cli.url --value "https://CustomDomain.coop"
 
 # Skeleton directory
@@ -53,16 +62,75 @@ occ config:app:set theming color --value "#0082c9"
 ## This is mandatory if you want to use custom logo and background by domain
 occ config:app:set theming logoMime --value "image/png"
 occ config:app:set theming backgroundMime --value "image/png"
-
 ```
+
 ## Theming
-* Inside the folder `appdata_<instanceId>/custom_domain/theming` you will need go create a folder with the domain of company
-* Inside the folder of company, create the file `background` and `logo` without extension.
-  > Logo need to be PNG and background need to be PNG  to follow the defined at `theming` app at `logoMime` and `backgroundMime` setting
-* Refresh the cache of app data folder to update the metadata of new images:
-  ```bash
-  occ files:scan-app-data
-  ```
+
+The app looks up theme files inside the app data folder, using this layout:
+
+```text
+appdata_<instanceId>/custom_domain/themes/<company-code>/core/img/
+```
+
+Supported files:
+
+- `logo.png`, `logo.jpg`, `logo.svg`
+- `favicon.png`, `favicon.jpg`, `favicon.svg`
+- `background.png`, `background.jpg`, `background.svg`
+
+There is also a fallback theme in:
+
+```text
+appdata_<instanceId>/custom_domain/themes/default/core/img/
+```
+
+The app bootstraps that default theme from the files in `themes/default/` during install and post-migration.
+
+To refresh app data after changing files:
+
+```bash
+occ files:scan-app-data
+```
+
+## CLI
+
+Available commands:
+
+```bash
+occ custom-domain:company:add <code> [--name <name>] [--domain <domain>] [--force]
+occ custom-domain:company:disable <code>
+occ custom-domain:company:list
+```
+
+Behavior:
+
+- `add` creates or reuses a Nextcloud group named after the company code.
+- `add` also adds the resulting domain to `trusted_domains`.
+- `list` shows companies inferred from `trusted_domains`.
+- `disable` removes the matching trusted domains for that company code.
+
+## Ansible Tests
+
+This repository includes a playbook to run the main functional checks against a local Nextcloud instance:
+
+```bash
+ansible-playbook -i localhost, -c local ansible/test_custom_domain.yml
+```
+
+The playbook:
+
+- verifies the Nextcloud instance is reachable
+- ensures `custom_domain` is enabled
+- creates a test company
+- lists companies in JSON format and asserts the new entry exists
+- removes the test company during cleanup
+
+## Runtime requirements
+
+- `groupfolders`
+- `theming`
+
+The app checks those dependencies at runtime and refuses to run its company management commands if they are missing.
 
 ## Contributing
 
