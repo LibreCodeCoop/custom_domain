@@ -33,23 +33,17 @@ use OCP\Files\NotFoundException;
 use OCP\Files\SimpleFS\ISimpleFile;
 use OCP\Files\SimpleFS\ISimpleFolder;
 use OCP\IConfig;
-use OCP\IDBConnection;
 use OCP\IGroup;
 use OCP\IGroupManager;
-use OCP\IL10N;
 use OCP\IRequest;
-use OCP\IUserSession;
 
 class CompanyService {
 
 	public function __construct(
 		private IRequest $request,
-		private IDBConnection $db,
-		private IUserSession $userSession,
 		private IAppData $appData,
 		private IGroupManager $groupManager,
 		private IConfig $config,
-		private IL10N $l,
 		private IAppManager $appManager,
 	) {
 	}

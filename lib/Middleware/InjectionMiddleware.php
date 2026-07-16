@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace OCA\CustomDomain\Middleware;
 
-use OC\NavigationManager;
 use OCA\CustomDomain\Backend\SystemGroupBackend;
 use OCA\CustomDomain\Service\CompanyService;
 use OCA\Theming\Controller\IconController;
 use OCA\Theming\Controller\ThemingController;
-use OCP\App\IAppManager;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\ContentSecurityPolicy;
 use OCP\AppFramework\Http\FileDisplayResponse;
@@ -18,26 +16,23 @@ use OCP\AppFramework\Http\Response;
 use OCP\AppFramework\Middleware;
 use OCP\Files\NotFoundException;
 use OCP\Files\SimpleFS\ISimpleFile;
-use OCP\IConfig;
+use OCP\IDBConnection;
 use OCP\IGroupManager;
 use OCP\IRequest;
-use OCP\IUserSession;
-use OCP\Server;
+use OCP\IUserManager;
 
 class InjectionMiddleware extends Middleware {
 	public function __construct(
 		private IRequest $request,
-		private NavigationManager $navigationManager,
-		private IUserSession $userSession,
 		private IGroupManager $groupManager,
-		private IAppManager $appManager,
-		private IConfig $config,
+		private IDBConnection $dbConnection,
+		private IUserManager $userManager,
 		private CompanyService $companyService,
 	) {
 	}
 
 	public function beforeController(Controller $controller, string $methodName) {
-		Server::get(\OCP\IGroupManager::class)->addBackend(new SystemGroupBackend());
+		$this->groupManager->addBackend(new SystemGroupBackend($this->dbConnection, $this->userManager));
 	}
 
 	public function afterController(Controller $controller, string $methodName, Response $response): Response {
