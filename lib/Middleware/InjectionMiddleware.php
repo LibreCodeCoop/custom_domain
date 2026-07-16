@@ -14,8 +14,6 @@ use OCP\AppFramework\Http\FileDisplayResponse;
 use OCP\AppFramework\Http\NotFoundResponse;
 use OCP\AppFramework\Http\Response;
 use OCP\AppFramework\Middleware;
-use OCP\Files\NotFoundException;
-use OCP\Files\SimpleFS\ISimpleFile;
 use OCP\IDBConnection;
 use OCP\IGroupManager;
 use OCP\IRequest;
