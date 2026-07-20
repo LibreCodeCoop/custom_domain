@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use OCP\App\IAppManager;
 use OCP\Server;
+
 /**
  * @copyright Copyright (c) 2016 Lukas Reschke <lukas@statuscode.ch>
  *
