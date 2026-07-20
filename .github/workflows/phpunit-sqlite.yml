@@ -149,4 +149,4 @@ jobs:
 
     steps:
       - name: Summary status
-        run: if ${{ needs.phpunit-sqlite.result != 'success' }}; then exit 1; fi
+        run: if [ "${{ needs.phpunit-sqlite.result }}" != "success" ]; then exit 1; fi
