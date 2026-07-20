@@ -5,9 +5,7 @@
   gather_facts: false
 
   vars:
-    nextcloud_compose_root: "{{ lookup('env', 'NEXTCLOUD_COMPOSE_ROOT') | default(playbook_dir ~ '/../../../../', true) }}"
-    nextcloud_service: nextcloud
-    occ_user: www-data
+    nextcloud_root: "{{ lookup('env', 'NEXTCLOUD_ROOT') | default(playbook_dir ~ '/../../../../', true) }}"
     test_companies:
       - code: ansiblecheck
         name: Ansible Check
@@ -24,48 +22,27 @@
         - name: Confirm Nextcloud is reachable
           ansible.builtin.command:
             argv:
-              - docker
-              - compose
-              - exec
-              - -u
-              - "{{ occ_user }}"
-              - "{{ nextcloud_service }}"
-              - php
               - occ
               - status
           args:
-            chdir: "{{ nextcloud_compose_root }}"
+            chdir: "{{ nextcloud_root }}"
           register: nextcloud_status
           changed_when: false
 
         - name: Ensure custom_domain is enabled
           ansible.builtin.command:
             argv:
-              - docker
-              - compose
-              - exec
-              - -u
-              - "{{ occ_user }}"
-              - "{{ nextcloud_service }}"
-              - php
               - occ
               - app:enable
               - custom_domain
           args:
-            chdir: "{{ nextcloud_compose_root }}"
+            chdir: "{{ nextcloud_root }}"
           register: enable_result
           changed_when: "'already enabled' not in enable_result.stdout"
 
         - name: Add test companies
           ansible.builtin.command:
             argv:
-              - docker
-              - compose
-              - exec
-              - -u
-              - "{{ occ_user }}"
-              - "{{ nextcloud_service }}"
-              - php
               - occ
               - custom-domain:company:add
               - "{{ item.code }}"
@@ -75,7 +52,7 @@
               - "{{ item.domain }}"
               - --force
           args:
-            chdir: "{{ nextcloud_compose_root }}"
+            chdir: "{{ nextcloud_root }}"
           loop: "{{ test_companies }}"
           loop_control:
             label: "{{ item.code }}"
@@ -85,19 +62,12 @@
         - name: List companies as JSON
           ansible.builtin.command:
             argv:
-              - docker
-              - compose
-              - exec
-              - -u
-              - "{{ occ_user }}"
-              - "{{ nextcloud_service }}"
-              - php
               - occ
               - custom-domain:company:list
               - --output
               - json
           args:
-            chdir: "{{ nextcloud_compose_root }}"
+            chdir: "{{ nextcloud_root }}"
           register: list_result
           changed_when: false
 
@@ -116,18 +86,11 @@
         - name: Remove the test companies from trusted domains
           ansible.builtin.command:
             argv:
-              - docker
-              - compose
-              - exec
-              - -u
-              - "{{ occ_user }}"
-              - "{{ nextcloud_service }}"
-              - php
               - occ
               - custom-domain:company:disable
               - "{{ item.code }}"
           args:
-            chdir: "{{ nextcloud_compose_root }}"
+            chdir: "{{ nextcloud_root }}"
           loop: "{{ test_companies }}"
           loop_control:
             label: "{{ item.code }}"

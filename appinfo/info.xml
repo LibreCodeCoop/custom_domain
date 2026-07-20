@@ -22,7 +22,7 @@
 	<bugs>https://github.com/librecodecoop/custom_domain/issues</bugs>
 	<repository type="git">https://github.com/librecodecoop/custom_domain</repository>
 	<dependencies>
-		<nextcloud min-version="28" max-version="33"/>
+		<nextcloud min-version="32" max-version="35"/>
 	</dependencies>
 
 	<repair-steps>
@@ -33,4 +33,10 @@
 			<step>OCA\CustomDomain\Migration\InstallDefaultTheme</step>
 		</install>
 	</repair-steps>
+	<commands>
+		<command>OCA\CustomDomain\Command\Company\Add</command>
+		<command>OCA\CustomDomain\Command\Company\Disable</command>
+		<command>OCA\CustomDomain\Command\Company\ListCommand</command>
+		<command>OCA\CustomDomain\Command\Developer\L10n</command>
+	</commands>
 </info>
