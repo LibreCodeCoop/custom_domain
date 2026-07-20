@@ -123,7 +123,12 @@ jobs:
       - name: Print logs
         if: always()
         run: |
-          cat data/nextcloud.log
+          if [ -f data/nextcloud.log ]; then
+            cat data/nextcloud.log
+          else
+            echo 'Nextcloud log file was not created.'
+            find data -maxdepth 2 -type f -print 2>/dev/null || true
+          fi
 
       - name: Skipped
         # Fail the action when neither unit nor integration tests ran
