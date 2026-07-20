@@ -168,12 +168,7 @@ jobs:
       - name: Print logs
         if: always()
         run: |
-          if [ -f data/nextcloud.log ]; then
-            cat data/nextcloud.log
-          else
-            echo 'Nextcloud log file was not created.'
-            find data -maxdepth 2 -type f -print 2>/dev/null || true
-          fi
+          cat data/nextcloud.log
 
       - name: Skipped
         # Fail the action when neither unit nor integration tests ran
@@ -194,4 +189,4 @@ jobs:
 
     steps:
       - name: Summary status
-        run: if [ "${{ needs.changes.outputs.src }}" != "false" ] && [ "${{ needs.phpunit-sqlite.result }}" != "success" ]; then exit 1; fi
+        run: if ${{ needs.changes.outputs.src != 'false' && needs.phpunit-sqlite.result != 'success' }}; then exit 1; fi
