@@ -35,16 +35,6 @@ occ custom-domain:company:list
 
 The `add` command creates or reuses a group and adds the domain to `trusted_domains`. `list` shows companies inferred from `trusted_domains`, and `disable` removes matching trusted domains.
 
-## Ansible tests
-
-Run the functional checks against a local Nextcloud instance:
-
-```bash
-ansible-playbook -i localhost, -c local tests/ansible/test_custom_domain.yml
-```
-
-The playbook verifies reachability, enables the app, creates test companies, checks JSON output, and cleans up the test domains.
-
 ## Runtime requirements
 
 - `groupfolders`
