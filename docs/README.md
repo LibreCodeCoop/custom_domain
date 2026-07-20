@@ -9,33 +9,6 @@ occ app:enable --force groupfolders
 occ app:enable --force theming
 ```
 
-## Customizations
-
-Optional settings commonly used with this app:
-
-```bash
-occ config:system:set has_valid_subscription --value true --type boolean
-occ app:enable --force registration
-occ config:app:set registration show_fullname --value yes
-occ config:app:set registration email_is_optional --value no
-occ config:app:set registration disable_email_verification --value no
-occ config:app:set registration enforce_fullname --value yes
-occ config:app:set core shareapi_only_share_with_group_members --value yes
-occ config:app:set files default_quota --value "50 MB"
-occ config:app:set core shareapi_allow_share_dialog_user_enumeration --value yes
-occ config:app:set password_policy minLength --value 8
-occ config:system:set knowledgebaseenabled --value false --type boolean
-occ config:system:set overwrite.cli.url --value "https://CustomDomain.coop"
-mkdir -p data/appdata_`occ config:system:get instanceid`/custom_domain/skeleton
-occ config:system:set skeletondirectory --value /data/appdata_`occ config:system:get instanceid`/custom_domain/skeleton
-occ config:app:set theming name --value "Custom Domain"
-occ config:app:set theming slogan --value "Made with ❤️"
-occ config:app:set theming url --value "https://CustomDomain.coop"
-occ config:app:set theming color --value "#0082c9"
-occ config:app:set theming logoMime --value "image/png"
-occ config:app:set theming backgroundMime --value "image/png"
-```
-
 ## Theming
 
 Theme files are read from:
