@@ -80,6 +80,7 @@ class InjectionMiddleware extends Middleware {
 			$domainResponse->cacheFor(3600);
 			return $domainResponse;
 		} catch (\Throwable $e) {
+		\OC::$server->getLogger()->error('Unable to inject custom domain background into theming CSS: ' . $e->getMessage(), ['app' => 'custom_domain']);
 			return $response;
 		}
 	}
