@@ -83,6 +83,7 @@ class Application extends App implements IBootstrap {
 
 	public function boot(IBootContext $context): void {
 		$this->overrideDefaultColor();
+		\OCP\Util::addStyle(self::APP_ID, 'custom-domain');
 	}
 
 	private function overrideDefaultColor() {
