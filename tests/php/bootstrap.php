@@ -1,4 +1,10 @@
 <?php
+
+declare(strict_types=1);
+
+use OCP\App\IAppManager;
+use OCP\Server;
+
 /**
  * @copyright Copyright (c) 2016 Lukas Reschke <lukas@statuscode.ch>
  *
@@ -23,9 +29,8 @@ if (!defined('PHPUNIT_RUN')) {
 	define('PHPUNIT_RUN', 1);
 }
 require_once __DIR__ . '/../../../../lib/base.php';
-\OC::$loader->addValidRoot(\OC::$SERVERROOT . '/tests');
-\OC_App::loadApp('custom_domain');
-if (!class_exists('\PHPUnit\Framework\TestCase')) {
-	require_once('PHPUnit/Autoload.php');
-}
+require_once __DIR__ . '/../../../../tests/autoload.php';
+
+Server::get(IAppManager::class)->loadApp('custom_domain');
+
 OC_Hook::clear();

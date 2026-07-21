@@ -22,11 +22,4 @@ declare(strict_types=1);
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-$vendorAutoload = __DIR__ . '/../vendor/autoload.php';
-if (file_exists($vendorAutoload)) {
-	require_once $vendorAutoload;
-}
-
-if (class_exists('OC') && isset(\OC::$composerAutoloader)) {
-	\OC::$composerAutoloader->addPsr4('OCA\\CustomDomain\\', __DIR__ . '/../lib');
-}
+require_once __DIR__ . '/../vendor/autoload.php';

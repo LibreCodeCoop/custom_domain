@@ -11,17 +11,6 @@
 	<testsuite name="CustomDomain App Tests">
 			<directory suffix="Test.php">.</directory>
 	</testsuite>
-	<coverage>
-		<!-- filters for code coverage -->
-		<include>
-			<directory suffix=".php">../../../custom_domain/appinfo</directory>
-			<directory suffix=".php">../../../custom_domain/lib</directory>
-		</include>
-		<report>
-			<!-- and this is where your report will be written -->
-			<clover outputFile="./clover.xml"/>
-		</report>
-	</coverage>
 	<logging>
 	</logging>
 </phpunit>
