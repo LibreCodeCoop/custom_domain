@@ -37,6 +37,7 @@ class InjectionMiddleware extends Middleware {
 	}
 
 	public function afterController(Controller $controller, string $methodName, Response $response): Response {
+		\OC::$server->getLogger()->error('Custom domain middleware controller: ' . get_class($controller) . '::' . $methodName, ['app' => 'custom_domain']);
 		if ($controller instanceof ThemingController) {
 			if ($methodName === 'getImage') {
 				$type = $this->request->getParam('key', '');
