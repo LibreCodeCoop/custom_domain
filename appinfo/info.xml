@@ -41,5 +41,6 @@
 	</commands>
 	<settings>
 		<admin>OCA\CustomDomain\Settings\Admin</admin>
+		<admin-section>OCA\CustomDomain\Settings\AdminSection</admin-section>
 	</settings>
 </info>
