@@ -38,6 +38,8 @@ use OCP\IGroupManager;
 use OCP\IRequest;
 
 class CompanyService {
+	private const THEME_KEYS = ['logo', 'favicon', 'background'];
+	private const THEME_EXTENSIONS = ['png', 'jpg', 'svg'];
 
 	public function __construct(
 		private IRequest $request,
@@ -145,6 +147,76 @@ class CompanyService {
 		}
 		$folder = $this->getThemeFolder('default');
 		return $folder->getFile($name);
+	}
+
+	/**
+	 * @return array<string, bool>
+	 */
+	public function getThemeStatus(string $code): array {
+		$this->assertCompanyCode($code);
+		$folder = $this->getThemeFolder($code);
+		$status = [];
+		foreach (self::THEME_KEYS as $key) {
+			$status[$key] = false;
+			foreach (self::THEME_EXTENSIONS as $extension) {
+				if ($folder->fileExists('core/img/' . $key . '.' . $extension)) {
+					$status[$key] = true;
+					break;
+				}
+			}
+		}
+		return $status;
+	}
+
+	public function saveThemeImage(string $code, string $key, array $image): void {
+		$this->assertCompanyCode($code);
+		if (!in_array($key, self::THEME_KEYS, true)) {
+			throw new InvalidArgumentException('Invalid theme image');
+		}
+		if (($image['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+			throw new InvalidArgumentException('The file was not uploaded successfully');
+		}
+		if (($image['size'] ?? 0) > 5 * 1024 * 1024) {
+			throw new InvalidArgumentException('The image must be smaller than 5 MB');
+		}
+
+		$mime = (new \finfo(FILEINFO_MIME_TYPE))->file($image['tmp_name']);
+		$extension = match ($mime) {
+			'image/png' => 'png',
+			'image/jpeg' => 'jpg',
+			'image/svg+xml' => 'svg',
+			default => throw new InvalidArgumentException('Supported formats are PNG, JPEG and SVG'),
+		};
+		$folder = $this->getThemeFolder($code);
+		try {
+			$imageFolder = $folder->getFolder('core/img');
+		} catch (NotFoundException $e) {
+			$imageFolder = $folder->newFolder('core')->newFolder('img');
+		}
+		$this->removeThemeImage($code, $key);
+		$imageFolder->newFile($key . '.' . $extension, file_get_contents($image['tmp_name']));
+	}
+
+	public function removeThemeImage(string $code, string $key): void {
+		$this->assertCompanyCode($code);
+		if (!in_array($key, self::THEME_KEYS, true)) {
+			throw new InvalidArgumentException('Invalid theme image');
+		}
+		$folder = $this->getThemeFolder($code);
+		foreach (self::THEME_EXTENSIONS as $extension) {
+			$file = 'core/img/' . $key . '.' . $extension;
+			try {
+				$folder->getFile($file)->delete();
+			} catch (NotFoundException $e) {
+				continue;
+			}
+		}
+	}
+
+	private function assertCompanyCode(string $code): void {
+		if (!preg_match('/^[a-zA-Z0-9][a-zA-Z0-9._-]*$/', $code) || !$this->groupManager->groupExists($code)) {
+			throw new InvalidArgumentException('Company not found with this code');
+		}
 	}
 
 	private function getThemeFolder(string $folderName): ISimpleFolder {
