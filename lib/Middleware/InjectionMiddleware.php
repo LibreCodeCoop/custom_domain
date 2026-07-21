@@ -8,6 +8,7 @@ use OCA\CustomDomain\Backend\SystemGroupBackend;
 use OCA\CustomDomain\Service\CompanyService;
 use OCA\Theming\Controller\IconController;
 use OCA\Theming\Controller\ThemingController;
+use OCA\Theming\Controller\UserThemeController;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\ContentSecurityPolicy;
 use OCP\AppFramework\Http\FileDisplayResponse;
@@ -42,6 +43,10 @@ class InjectionMiddleware extends Middleware {
 		} elseif ($controller instanceof IconController) {
 			if ($methodName === 'getFavicon') {
 				return $this->getImageFromDomain($response, 'favicon');
+			}
+		} elseif ($controller instanceof UserThemeController) {
+			if ($methodName === 'getBackground') {
+				return $this->getImageFromDomain($response, 'background');
 			}
 		}
 		return $response;

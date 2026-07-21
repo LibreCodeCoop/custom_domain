@@ -57,14 +57,6 @@ cd /var/www/html/custom_apps/custom_domain
 composer dump-autoload --no-dev --optimize
 ```
 
-When Nextcloud runs behind nginx and PHP-FPM, the internal nginx server must
-forward the original host so each company domain can be identified correctly:
-
-```nginx
-fastcgi_param HTTP_HOST $http_host;
-fastcgi_param HTTP_X_FORWARDED_HOST $http_x_forwarded_host;
-```
-
 If the data directory was upgraded to Nextcloud 34, keep the deployment image
 on the same major version, for example `NEXTCLOUD_VERSION=34-fpm`. Rebuilding
 with an older image can trigger an unsupported downgrade and prevent Nextcloud
