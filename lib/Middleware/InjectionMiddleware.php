@@ -10,6 +10,7 @@ use OCA\Theming\Controller\IconController;
 use OCA\Theming\Controller\ThemingController;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\ContentSecurityPolicy;
+use OCP\AppFramework\Http\DataDisplayResponse;
 use OCP\AppFramework\Http\FileDisplayResponse;
 use OCP\AppFramework\Http\NotFoundResponse;
 use OCP\AppFramework\Http\Response;
@@ -17,6 +18,7 @@ use OCP\AppFramework\Middleware;
 use OCP\IDBConnection;
 use OCP\IGroupManager;
 use OCP\IRequest;
+use OCP\IURLGenerator;
 use OCP\IUserManager;
 
 class InjectionMiddleware extends Middleware {
@@ -26,6 +28,7 @@ class InjectionMiddleware extends Middleware {
 		private IDBConnection $dbConnection,
 		private IUserManager $userManager,
 		private CompanyService $companyService,
+		private IURLGenerator $urlGenerator,
 	) {
 	}
 
@@ -43,8 +46,42 @@ class InjectionMiddleware extends Middleware {
 			if ($methodName === 'getFavicon') {
 				return $this->getImageFromDomain($response, 'favicon');
 			}
+		} elseif ($controller instanceof \OC\Core\Controller\CssController) {
+			if ($methodName === 'getCss' && $this->request->getParam('appName') === 'theming') {
+				return $this->injectDomainBackground($response);
+			}
 		}
 		return $response;
+	}
+
+	private function injectDomainBackground(Response $response): Response {
+		if (!$response instanceof FileDisplayResponse) {
+			return $response;
+		}
+
+		try {
+			$reflection = new \ReflectionClass($response);
+			$fileProperty = $reflection->getProperty('file');
+			$fileProperty->setAccessible(true);
+			$css = $fileProperty->getValue($response)->getContent();
+			$background = $this->companyService->getThemeFile('core/img/background');
+			$backgroundUrl = $this->urlGenerator->linkTo('theming', 'image/background') . '?v=' . rawurlencode($background->getETag());
+			$css = preg_replace(
+				'/--image-background:\s*url\([^)]*\);/',
+				'--image-background: url(\'' . $backgroundUrl . '\');',
+				$css,
+				1,
+			);
+			if (!is_string($css)) {
+				return $response;
+			}
+			$domainResponse = new DataDisplayResponse($css);
+			$domainResponse->addHeader('Content-Type', 'text/css');
+			$domainResponse->cacheFor(3600);
+			return $domainResponse;
+		} catch (\Throwable $e) {
+			return $response;
+		}
 	}
 
 	private function getImageFromDomain(Response $response, string $type): Response {
