@@ -39,4 +39,7 @@
 		<command>OCA\CustomDomain\Command\Company\ListCommand</command>
 		<command>OCA\CustomDomain\Command\Developer\L10n</command>
 	</commands>
+	<settings>
+		<admin>OCA\CustomDomain\Settings\Admin</admin>
+	</settings>
 </info>
