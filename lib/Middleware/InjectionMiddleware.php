@@ -26,7 +26,6 @@ class InjectionMiddleware extends Middleware {
 		private IDBConnection $dbConnection,
 		private IUserManager $userManager,
 		private CompanyService $companyService,
-		private IURLGenerator $urlGenerator,
 	) {
 	}
 
