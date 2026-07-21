@@ -38,28 +38,4 @@ occ custom-domain:company:add <code> [--name <name>] [--domain <domain>] [--forc
 occ custom-domain:company:disable <code>
 occ custom-domain:company:list
 ```
-
-The `add` command creates or reuses a group and adds the domain to `trusted_domains`. `list` shows companies inferred from `trusted_domains`, and `disable` removes matching trusted domains.
-
-## Runtime requirements
-
-- `groupfolders`
-- `theming`
-
-## Deployment notes
-
-After deploying the app, regenerate its Composer autoloader. The app uses an
-authoritative classmap, so new controllers and settings classes are not
-available until this step is completed:
-
-```bash
-cd /var/www/html/custom_apps/custom_domain
-composer dump-autoload --no-dev --optimize
-```
-
-If the data directory was upgraded to Nextcloud 34, keep the deployment image
-on the same major version, for example `NEXTCLOUD_VERSION=34-fpm`. Rebuilding
-with an older image can trigger an unsupported downgrade and prevent Nextcloud
-from starting.
-
 The app checks these dependencies at runtime and refuses to run its company management commands if they are missing.
