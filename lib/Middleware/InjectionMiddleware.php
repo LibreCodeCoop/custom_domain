@@ -47,7 +47,7 @@ class InjectionMiddleware extends Middleware {
 				return $this->getImageFromDomain($response, 'favicon');
 			}
 		} elseif ($controller instanceof \OC\Core\Controller\CssController) {
-			if ($methodName === 'getCss' && $this->request->getParam('appName') === 'theming') {
+			if ($methodName === 'getCss') {
 				return $this->injectDomainBackground($response);
 			}
 		}
