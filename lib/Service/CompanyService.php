@@ -146,7 +146,14 @@ class CompanyService {
 			}
 		}
 		$folder = $this->getThemeFolder('default');
-		return $folder->getFile($name);
+		foreach (['png', 'jpg', 'svg'] as $extension) {
+			try {
+				return $folder->getFile($name . '.' . $extension);
+			} catch (NotFoundException $e) {
+				continue;
+			}
+		}
+		throw new NotFoundException();
 	}
 
 	/**

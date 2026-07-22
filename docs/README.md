@@ -38,12 +38,4 @@ occ custom-domain:company:add <code> [--name <name>] [--domain <domain>] [--forc
 occ custom-domain:company:disable <code>
 occ custom-domain:company:list
 ```
-
-The `add` command creates or reuses a group and adds the domain to `trusted_domains`. `list` shows companies inferred from `trusted_domains`, and `disable` removes matching trusted domains.
-
-## Runtime requirements
-
-- `groupfolders`
-- `theming`
-
 The app checks these dependencies at runtime and refuses to run its company management commands if they are missing.
